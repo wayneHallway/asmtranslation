@@ -1,31 +1,17 @@
-name: Mac Assembly Semantic Probe
-
-on: [push, pull_request]
-
+name: GG_Fast_Verify
+on: [push]
 jobs:
-  probe-test:
-    runs-on: macos-latest
-
+  verify:
+    runs-on: macos-latest  # 必须用原生环境支持 s0, d0 寄存器
     steps:
-      - name: Checkout Code
-        # 更新到 v4，解决旧版弃用警告
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Run Evaluator
+      - uses: actions/checkout@v4
+      - name: Fast Quantitative Test
         run: |
+          # 加上 -arch arm64 确保浮点指令集完全兼容
+          export CFLAGS="-arch arm64" 
           python3 evaluator.py
-
-      - name: Upload Logs and Coverage
-        # 关键修复：必须使用 v4 才能上传成功
+      - name: Save Report
         uses: actions/upload-artifact@v4
         with:
-          name: probe-results
-          path: |
-            evaluation_log.txt
-            *.gcov
-            generated_asm/*.gcda
+          name: gg-stats
+          path: summary.txt
