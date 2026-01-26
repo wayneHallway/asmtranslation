@@ -1,17 +1,18 @@
-name: GG_Fast_Verify
+name: GG_Smart_Probe
 on: [push]
+
 jobs:
-  verify:
-    runs-on: macos-latest  # 必须用原生环境支持 s0, d0 寄存器
+  test:
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Fast Quantitative Test
+      - name: Run Smart Evaluator
         run: |
-          # 加上 -arch arm64 确保浮点指令集完全兼容
-          export CFLAGS="-arch arm64" 
           python3 evaluator.py
-      - name: Save Report
+          # 在日志里直接显示 CSV 摘要
+          column -t -s "," detailed_report.csv | head -n 20 
+      - name: Upload Report
         uses: actions/upload-artifact@v4
         with:
-          name: gg-stats
-          path: summary.txt
+          name: smart-results
+          path: detailed_report.csv
