@@ -1,0 +1,27 @@
+name: Mac Assembly Semantic Probe
+
+on: [push, pull_request]
+
+jobs:
+  probe-test:
+    # 必须用 macos-latest 以获得 AArch64 原生环境和 Apple Clang
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Run Evaluator
+        run: |
+          # 运行 Python 脚本进行自动化编译、运行和覆盖率收集
+          python3 evaluator.py
+
+      - name: Upload Logs and Coverage
+        # 将运行结果和生成的 .gcov 覆盖率报告上传到 Artifacts 方便下载查看
+        uses: actions/upload-artifact@v3
+        with:
+          name: probe-results
+          path: |
+            evaluation_log.txt
+            *.gcov
+            generated_asm/*.gcda
