@@ -1,18 +1,14 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-// 严格匹配汇编：x0=指针, w1=整数, s0=浮点数
-extern int func0(float *data, int n, float eps);
+// 严格匹配：x0=数组指针, w1=长度, s0=浮点阈值
+// 返回值：w0=整数状态
+extern int func0(float *arr, int len, float threshold);
 
 int main() {
-    // 构造测试数据
-    float test_data[5] = {1.1f, 2.2f, 3.3f, 4.4f, 5.5f};
-    int n = 5;
-    float eps = 0.5f;
-
-    // 直接调用。注意：Mac Clang 会自动把 eps 放入 s0
-    int result = func0(test_data, n, eps);
-
-    printf("EXEC_RESULT:%d\n", result);
+    float data[3] = {1.0f, 2.0f, 3.0f};
+    // 这里的参数要能触发汇编里的逻辑分支
+    int res = func0(data, 3, 0.1f); 
+    
+    printf("Result: %d\n", res);
     return 0;
 }
