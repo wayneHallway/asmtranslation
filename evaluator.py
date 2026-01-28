@@ -17,8 +17,6 @@ def python_to_c_arg(node):
         return {"code": str(val), "type": "num", "regs": 1}
     
     if isinstance(node, ast.List):
-        # 处理 List[int/float] 为 C 数组
-        # 按照汇编惯例：x0 = 数组指针, x1 = 数组长度
         elements = [str(n.value) if isinstance(n, ast.Constant) else "0" for n in node.elts]
         if not elements:
             return {"code": "NULL, 0", "type": "array", "regs": 2}
@@ -31,16 +29,12 @@ def generate_harness(task_id, entry_point, test_code):
     """
     解析 test 字符串，动态生成 C 代码
     """
-    # 提取 test 字段中所有的 assert candidate(...) == ...
-    # 使用正则匹配 candidate 调用及其预期的结果
     pattern = rf"assert {entry_point}\((.*?)\)\s*==\s*(.*)"
     matches = re.findall(pattern, test_code)
     
     test_cases_c = ""
     for i, (args_raw, expected_raw) in enumerate(matches):
-        # 1. 解析参数
         try:
-            # 包装成 tuple 进行解析以支持多参数
             parsed_args = ast.parse(f"({args_raw})").body[0].value.elts
         except:
             parsed_args = [ast.parse(args_raw).body[0].value]
@@ -57,7 +51,6 @@ def generate_harness(task_id, entry_point, test_code):
             else:
                 call_params.append(info["code"])
 
-        # 2. 补齐 ARM64 寄存器到 8 个，防止汇编读取越界
         while len(call_params) < 8:
             call_params.append("0")
 
@@ -74,7 +67,6 @@ def generate_harness(task_id, entry_point, test_code):
 #include <stdlib.h>
 #include <string.h>
 
-// 统一函数名 _func0 (C 语言中调用不带下划线，汇编标记带下划线)
 extern uintptr_t func0(uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t);
 
 int main() {{
@@ -83,8 +75,14 @@ int main() {{
     return 0;
 }}
 """
+
 def run_evaluation():
-    with open("human-eval-v2-20210705.jsonl", 'r') as f:
+    jsonl_file = "human-eval-v2-20210705.jsonl"
+    if not os.path.exists(jsonl_file):
+        print(f"Error: {jsonl_file} not found.")
+        return
+
+    with open(jsonl_file, 'r') as f:
         tasks = [json.loads(line) for line in f]
     
     asm_dir = "./generated_asm"
@@ -92,21 +90,20 @@ def run_evaluation():
         print(f"Error: Directory {asm_dir} not found.")
         return
 
-    # 按编号排序 0.s, 1.s ...
     asm_files = sorted([f for f in os.listdir(asm_dir) if f.endswith(".s")], 
                        key=lambda x: int(re.search(r'\d+', x).group()))
 
-    # --- 新增统计计数器 ---
+    # --- 统计计数器 ---
     total_files = len(asm_files)
-    passed_count = 0
-    fail_count = 0
-    crash_count = 0
-    compile_error_count = 0
+    compile_success_count = 0  # 编译成功数
+    passed_count = 0           # 逻辑通过数 (OK)
+    fail_count = 0             # 逻辑失败数
+    crash_count = 0            # 崩溃或超时数
+    compile_error_count = 0    # 编译失败数
 
     print(f"开始评测: 共找到 {total_files} 个汇编文件\n" + "-"*50)
 
     for i, filename in enumerate(asm_files):
-        # 确保索引不越界（如果 .s 文件比 json 记录多）
         if i >= len(tasks):
             break
             
@@ -119,8 +116,11 @@ def run_evaluation():
         asm_path = os.path.join(asm_dir, filename)
         compile_cmd = f"clang -arch arm64 temp_harness.c {asm_path} -o tester -lm"
         
+        # 尝试编译
         if subprocess.run(compile_cmd, shell=True, capture_output=True).returncode == 0:
+            compile_success_count += 1 # 编译成功计数
             try:
+                # 尝试运行
                 res = subprocess.run("./tester", capture_output=True, text=True, timeout=2)
                 if "SUCCESS" in res.stdout:
                     print(f"Task {i:<3} ({filename:<10}): [OK]")
@@ -138,23 +138,29 @@ def run_evaluation():
             print(f"Task {i:<3} ({filename:<10}): [COMPILE ERROR]")
             compile_error_count += 1
 
-    # --- 新增结果统计输出 ---
+    # --- 统计输出逻辑 ---
     print("-" * 50)
-    print("评测结束汇总:")
-    print(f"总文件数: {total_files}")
-    print(f"通过 (OK): {passed_count}")
-    print(f"失败 (FAIL): {fail_count}")
-    print(f"编译错误: {compile_error_count}")
-    print(f"崩溃/超时: {crash_count}")
+    print("评测结束汇总报告:")
+    print(f"1. 样本总数:      {total_files}")
+    print(f"2. 编译阶段:      成功 {compile_success_count} / 失败 {compile_error_count}")
+    print(f"3. 执行阶段:      通过 {passed_count} / 逻辑错误 {fail_count} / 崩溃超时 {crash_count}")
+    print("-" * 50)
     
     if total_files > 0:
-        pass_rate = (passed_count / total_files) * 100
-        print(f"\n总通过率: {pass_rate:.2f}%")
+        # 编译通过率：编译成功的 / 总数
+        compile_rate = (compile_success_count / total_files) * 100
+        # 执行通过率：执行通过的(OK) / 编译成功的 (只有编译成功了才有资格谈执行通过率)
+        exec_rate = (passed_count / compile_success_count * 100) if compile_success_count > 0 else 0
+        # 整体通过率：执行通过的(OK) / 总数
+        overall_rate = (passed_count / total_files) * 100
+
+        print(f"编译通过率 (Compile Success Rate): {compile_rate:.2f}%")
+        print(f"执行通过率 (Execution Pass Rate):  {exec_rate:.2f}% (基于已编译成功的样本)")
+        print(f"最终全通过率 (Full Pass Rate):      {overall_rate:.2f}%")
     else:
-        print("\n未发现可测试的汇编文件。")
+        print("未发现有效样本。")
     print("-" * 50)
 
-    # 清理中间文件
     if os.path.exists("tester"): os.remove("tester")
     if os.path.exists("temp_harness.c"): os.remove("temp_harness.c")
 
