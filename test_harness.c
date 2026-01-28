@@ -1,63 +1,50 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <stdint.h>
 
 /**
- * 适配模式说明：
- * 1. TYPE_STR_RETURN: 返回 char* (如 "YES"/"NO")，接收 4 个参数 (int*, int, int*, int)
- * 2. TYPE_MULTIPARAM: 接收 4 个参数 (int*, int, int**, int*)，用于排序/过滤
- * 3. TYPE_MALLOC:     接收 1 个参数 (int n)，返回 int*
- * 4. TYPE_FLOAT:      接收 3 个参数 (float*, int, float)
- * 5. TYPE_GENERAL:    通用探测模式 (void*, int)
+ * 核心逻辑：
+ * 汇编里的 _func0 不知道 C 语言是怎么声明它的。
+ * 它只管从 x0, x1, x2... 寄存器里拿值。
+ * 我们通过这个“万能签名”，强制 C 编译器把这 8 个寄存器全部填满。
  */
+extern uintptr_t func0(
+    uintptr_t x0, uintptr_t x1, uintptr_t x2, uintptr_t x3, 
+    uintptr_t x4, uintptr_t x5, uintptr_t x6, uintptr_t x7
+);
 
-#ifdef TYPE_STR_RETURN
-    extern char* func0(int* a, int na, int* b, int nb);
-#elif defined(TYPE_MULTIPARAM)
-    extern void func0(int* input, int n, int** output_ptr, int* count_ptr);
-#elif defined(TYPE_MALLOC)
-    extern int* func0(int n);
-#elif defined(TYPE_FLOAT)
-    extern int func0(float* arr, int n, float threshold);
-#else
-    extern int func0(void* buf, int n);
-#endif
+/**
+ * 浮点专用：如果你的 analyze_signature 判定是浮点运算，
+ * 汇编会去 s0/d0 寄存器拿值。上面的整数签名填不进浮点寄存器。
+ */
+extern double func0_float(double d0, double d1, double d2, double d3);
 
-int main() {
-    printf("[Harness] Execution Start...\n");
+int main(int argc, char **argv) {
+    // 准备一个 4KB 的安全内存池，所有指针参数都指向这里，防止非法内存访问
+    void* safe_pool = calloc(4096, 1);
+    uintptr_t p = (uintptr_t)safe_pool;
 
-#ifdef TYPE_STR_RETURN
-    int a[5] = {2, 4, 6, 8, 10};
-    int b[5] = {1, 3, 5, 7, 9};
-    char* res = func0(a, 5, b, 5);
-    if (res) printf("[Harness] Result String: %s\n", res);
+    // 获取当前文件的评测类型（由 evaluator.py 在编译时通过 -D 传入）
+    #if defined(TYPE_FLOAT)
+        printf("[Harness] Floating Point Mode\n");
+        double f_res = func0_float(1.0, 2.0, 3.0, 4.0);
+        printf("[RESULT] %f\n", f_res);
 
-#elif defined(TYPE_MULTIPARAM)
-    int in_data[5] = {50, 40, 30, 20, 10};
-    int* out_ptr = NULL;
-    int count = 0;
-    func0(in_data, 5, &out_ptr, &count);
-    printf("[Harness] Multi-Param OK, Count: %d\n", count);
-    if (out_ptr) free(out_ptr);
+    #elif defined(TYPE_STR_RETURN)
+        printf("[Harness] String Return Mode\n");
+        // 即使它只要 2 个参数，我们也填满 8 个，确保 x0-x7 都有值
+        uintptr_t s_res = func0(p, 10, p, 10, p, 10, p, 10);
+        if (s_res > 0x1000) { // 简单的有效指针判断
+            printf("[RESULT] %s\n", (char*)s_res);
+        }
 
-#elif defined(TYPE_MALLOC)
-    int n = 16;
-    int* res = func0(n);
-    if (res) { printf("[Harness] Malloc Pointer: %p\n", res); free(res); }
+    #else
+        // 通用模式：涵盖了 MULTIPARAM, MALLOC, GENERAL
+        printf("[Harness] General/Multi-Param Mode\n");
+        uintptr_t res = func0(p, 10, p, 10, p, 10, p, 10);
+        printf("[RESULT] %lu\n", (unsigned long)res);
+    #endif
 
-#elif defined(TYPE_FLOAT)
-    float fdata[5] = {1.1f, 2.2f, 3.3f, 4.4f, 5.5f};
-    int fres = func0(fdata, 5, 0.5f);
-    printf("[Harness] Float Result: %d\n", fres);
-
-#else
-    // 通用安全模式：分配大缓冲区并清零，防止非法地址读写
-    void* buffer = calloc(1024 * 1024, 1); 
-    int gres = func0(buffer, 10);
-    printf("[Harness] General Return: %d\n", gres);
-    free(buffer);
-#endif
-
-    printf("[Harness] Execution Finished.\n");
+    free(safe_pool);
     return 0;
 }
