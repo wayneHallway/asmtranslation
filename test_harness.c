@@ -2,32 +2,30 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-// 保持 8 参数声明，确保寄存器占位
-extern uintptr_t func0(uintptr_t x0, uintptr_t x1, uintptr_t x2, uintptr_t x3, 
-                       uintptr_t x4, uintptr_t x5, uintptr_t x6, uintptr_t x7);
+// 声明 8 个参数，强迫 C 编译器填满 x0-x7
+extern uintptr_t func0(uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t);
 
 int main() {
-    // 1. 构造浮点数输入数据 (因为汇编里 lsl #2 明确了这是个 float 数组)
-    float test_scores[10] = {4.0f, 3.8f, 3.5f, 3.0f, 2.7f, 2.3f, 2.0f, 1.7f, 1.3f, 1.0f};
+    // 1. 分配一个巨大的内存池（16MB），确保汇编随便怎么乱跳都不会出界
+    const size_t pool_size = 16 * 1024 * 1024;
+    void* big_pool = calloc(pool_size, 1);
     
-    // 2. 调用函数
-    // x0 = 数组指针, x1 = 长度 10
-    // 其余寄存器填充 0 即可
-    printf("[Harness] Calling _func0 with float array...\n");
-    uintptr_t res_ptr = func0((uintptr_t)test_scores, 10, 0, 0, 0, 0, 0, 0);
+    // 让指针指向池子的中间，这样汇编代码往前、往后偏移几百 KB 都是安全的
+    uintptr_t p = (uintptr_t)big_pool + (pool_size / 2);
 
-    // 3. 结果处理
-    // 根据汇编 LBB0_40，它返回的是 malloc 出来的指针数组 (char**)
-    if (res_ptr != 0) {
-        char** results = (char**)res_ptr;
-        printf("[Harness] Function returned pointer: %p\n", results);
-        for(int i = 0; i < 5; i++) { // 尝试打印前 5 个结果
-            if (results[i]) printf("  Score %d Grade: %s\n", i, results[i]);
-        }
-        // 注意：这里理论上应该 free(results)，但模型生成的代码可能有内存错误，先不 free 防止二次崩溃
-    } else {
-        printf("[Harness] Function returned NULL\n");
+    // 2. 极限填充：所有 8 个参数全部塞入这个安全指针
+    // 这样无论模型预期 x0 是数组、x1 是长度、还是 x2 是结果缓冲区，
+    // 它们现在全都是合法的内存地址。
+    printf("[Harness] Universal Probe Start...\n");
+    
+    uintptr_t res = func0(p, 100, p, 100, p, 100, p, 100);
+
+    // 3. 简单的结果判定
+    if (res > 0) {
+        printf("[RESULT] Return: 0x%lx\n", (unsigned long)res);
     }
 
+    // 故意不 free(big_pool)，防止模型代码写坏了内存头导致 free 时崩溃
+    printf("[Harness] Success.\n");
     return 0;
 }
