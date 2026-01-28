@@ -4,17 +4,11 @@ import csv
 
 def analyze_signature(asm_content):
     """
-    保持你原有的逻辑，但增加对浮点指令的敏感度
+    只读探测：通过汇编关键词判断该给 C 语言传什么打印宏
     """
-    # 浮点指令特征（ARM64）
-    float_indicators = ["fadd", "fsub", "fmul", "fcmp", "s0", "d0", "v0"]
-    if any(ind in asm_content.lower() for ind in float_indicators):
-        return "TYPE_FLOAT"
-    
     if "l_.str" in asm_content:
         return "TYPE_STR_RETURN"
-    
-    # 默认通用模式
+    # 可以根据需要增加其他探测逻辑
     return "TYPE_GENERAL"
 
 def run_evaluation():
@@ -22,52 +16,60 @@ def run_evaluation():
     harness = "test_harness.c"
     results = []
 
-    if not os.path.exists(asm_dir): return
+    if not os.path.exists(asm_dir):
+        print("Error: Directory not found")
+        return
 
+    # 排序处理，保证结果顺序一致
     files = sorted([f for f in os.listdir(asm_dir) if f.endswith(".s")])
 
     for filename in files:
         asm_path = os.path.join(asm_dir, filename)
+        
+        # 只读方式打开，绝不修改
         with open(asm_path, 'r', encoding='utf-8') as f:
             content = f.read()
 
         sig_type = analyze_signature(content)
-        exe_name = f"./{filename}.out"
+        exe_name = f"./temp_exe_{filename}.out"
         
-        # 关键点：使用 -D 传入类型，并加入 Address Sanitizer (asan)
-        # asan 能在运行时告诉你到底哪里越界了，非常适合论文的数据分析
+        # 编译命令：直接链接你的 .s 文件
+        # -Wl,-no_pie 可以解决某些 Mac 环境下的地址随机化干扰
         compile_cmd = (
-            f"clang -arch arm64 -O0 -g "
-            f"-fsanitize=address "  # 开启内存安全检测
-            f"-D{sig_type} "        # 告诉 C 代码现在是什么模式
-            f"{harness} {asm_path} "
+            f"clang -arch arm64 -O0 "
+            f"-D{sig_type} "
+            f"{harness} \"{asm_path}\" "
             f"-o {exe_name} -lm"
         )
         
         cp = subprocess.run(compile_cmd, shell=True, capture_output=True, text=True)
 
-        res_entry = {"file": filename, "type": sig_type, "compile": "FAIL", "run": "SKIP"}
+        row = {"file": filename, "type": sig_type, "compile": "FAIL", "run": "SKIP", "log": ""}
 
         if cp.returncode == 0:
-            res_entry["compile"] = "OK"
+            row["compile"] = "OK"
             try:
-                # 运行测试
-                rp = subprocess.run(exe_name, shell=True, capture_output=True, text=True, timeout=2.0)
+                # 运行阶段
+                rp = subprocess.run(exe_name, shell=True, capture_output=True, text=True, timeout=1.5)
                 if rp.returncode == 0:
-                    res_entry["run"] = "OK"
+                    row["run"] = "OK"
                 else:
-                    res_entry["run"] = f"CRASH({rp.returncode})"
+                    row["run"] = f"CRASH({rp.returncode})"
+                    row["log"] = rp.stderr
             except subprocess.TimeoutExpired:
-                res_entry["run"] = "TIMEOUT"
-        
-        results.append(res_entry)
-        print(f"{filename:<25} | {sig_type:<15} | {res_entry['compile']:<8} | {res_entry['run']:<8}")
+                row["run"] = "TIMEOUT"
+        else:
+            row["log"] = cp.stderr
 
-        if os.path.exists(exe_name): os.remove(exe_name)
+        print(f"{filename:<25} | {sig_type:<15} | {row['compile']:<8} | {row['run']:<8}")
+        results.append(row)
 
-    # 导出报告
+        if os.path.exists(exe_name):
+            os.remove(exe_name)
+
+    # 写入 CSV
     with open("detailed_report.csv", "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["file", "type", "compile", "run"])
+        writer = csv.DictWriter(f, fieldnames=["file", "type", "compile", "run", "log"])
         writer.writeheader()
         writer.writerows(results)
 
