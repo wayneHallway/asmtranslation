@@ -71,26 +71,17 @@ LBB0_7:                                 ;   in Loop: Header=BB0_6 Depth=1
 	add	w11, w11, #1
 	str	w11, [sp, #8]
 	str	w8, [x9, x10, lsl #2]
-	ldur	x8, [x29, #-8]
-	ldrsw	x9, [sp, #12]
-	ldr	w8, [x8, x9, lsl #2]
-	ldr	x9, [sp, #16]
-	ldrsw	x10, [sp, #8]
-	mov	x11, x10
-	add	w11, w11, #1
-	str	w11, [sp, #8]
-	str	w8, [x9, x10, lsl #2]
+	ldur	x9, [x29, #-8]
+	ldrsw	x10, [sp, #12]
+	ldr	w8, [x9, x10, lsl #2]
+	ldr	x10, [sp, #16]
+	ldrsw	x11, [sp, #8]
+	mov	x12, x11
+	add	w12, w12, #1
+	str	w12, [sp, #8]
+	str	w8, [x10, x11, lsl #2]
 	b	LBB0_8
 LBB0_8:                                 ;   in Loop: Header=BB0_6 Depth=1
 	ldr	w8, [sp, #12]
 	add	w8, w8, #1
-	str	w8, [sp, #12]
-	b	LBB0_6
-LBB0_9:
-	ldr	x0, [sp, #16]
-	ldp	x29, x30, [sp, #48]             ; 16-byte Folded Reload
-	add	sp, sp, #64
-	ret
-	.cfi_endproc
-                                        ; -- End function
-.subsections_via_symbols
+	str	w8

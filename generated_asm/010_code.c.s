@@ -77,24 +77,4 @@ LBB0_5:
 LBB0_6:                                 ;   in Loop: Header=BB0_1 Depth=1
 	b	LBB0_7
 LBB0_7:                                 ;   in Loop: Header=BB0_1 Depth=1
-	ldr	w8, [sp, #12]
-	subs	w8, w8, #1
-	str	w8, [sp, #12]
-	b	LBB0_1
-LBB0_8:
-	adrp	x8, _func0.out@PAGE
-	add	x8, x8, _func0.out@PAGEOFF
-	strb	wzr, [x8, #0]
-	ldur	x8, [x29, #-8]
-	add	x0, x8, #48
-	ldp	x29, x30, [sp, #48]             ; 16-byte Folded Reload
-	add	sp, sp, #64
-	ret
-	.cfi_endproc
-                                        ; -- End function
-.zerofill __DATA,__bss,_func0.out,2,0   ; @func0.out
-	.section	__TEXT,__cstring,cstring_literals
-l_.str:                                 ; @.str
-	.asciz	"AEIOUaeiou"
-
-.subsections_via_symbols
+	ldr

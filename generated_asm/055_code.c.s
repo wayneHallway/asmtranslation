@@ -81,23 +81,4 @@ LBB0_9:
 LBB0_10:
 	ldr	w8, [sp, #4]
 	ldr	w9, [sp]
-	subs	w8, w8, w9
-	cset	w8, le
-	tbnz	w8, #0, LBB0_12
-	b	LBB0_11
-LBB0_11:
-	ldr	x8, [sp, #16]
-	stur	x8, [x29, #-8]
-	b	LBB0_13
-LBB0_12:
-	ldur	x8, [x29, #-16]
-	stur	x8, [x29, #-8]
-	b	LBB0_13
-LBB0_13:
-	ldur	x0, [x29, #-8]
-	ldp	x29, x30, [sp, #48]             ; 16-byte Folded Reload
-	add	sp, sp, #64
-	ret
-	.cfi_endproc
-                                        ; -- End function
-.subsections_via_symbols
+	subs

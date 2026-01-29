@@ -29,8 +29,8 @@ LBB0_2:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldr	w10, [sp, #20]
 	subs	w10, w10, #1
 	ldr	w11, [sp, #12]
-	subs	w10, w10, w11
-	ldr	w9, [x9, w10, sxtw #2]
+	subs	w11, w10, w11
+	ldr	w9, [x9, w11, sxtw #2]
 	subs	w8, w8, w9
 	cset	w8, eq
 	tbnz	w8, #0, LBB0_4

@@ -10,8 +10,10 @@ _func0:                                 ; @func0
 	str	x0, [sp, #32]
 	str	w1, [sp, #28]
 	str	x2, [sp, #16]
+	mov	w8, #2147483647
+	str	w8, [sp, #12]
 	mov	w8, #-1
-	str	w8, [sp, #8]                    ; 4-byte Folded Spill
+	str	w8, [sp, #8]
 	str	wzr, [sp, #4]
 	b	LBB0_1
 LBB0_1:                                 ; =>This Inner Loop Header: Depth=1
@@ -37,13 +39,13 @@ LBB0_3:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldr	x8, [sp, #32]
 	ldrsw	x9, [sp, #4]
 	ldr	w8, [x8, x9, lsl #2]
-	ldr	w9, [sp, #16]
+	ldr	w9, [sp, #12]
 	subs	w8, w8, w9
 	cset	w8, lt
 	tbnz	w8, #0, LBB0_5
 	b	LBB0_4
 LBB0_4:                                 ;   in Loop: Header=BB0_1 Depth=1
-	ldr	w8, [sp, #8]                    ; 4-byte Folded Reload
+	ldr	w8, [sp, #8]
 	adds	w8, w8, #1
 	cset	w8, ne
 	tbnz	w8, #0, LBB0_6
@@ -52,9 +54,9 @@ LBB0_5:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldr	x8, [sp, #32]
 	ldrsw	x9, [sp, #4]
 	ldr	w8, [x8, x9, lsl #2]
-	str	w8, [sp, #16]
+	str	w8, [sp, #12]
 	ldr	w8, [sp, #4]
-	str	w8, [sp, #8]                    ; 4-byte Folded Spill
+	str	w8, [sp, #8]
 	b	LBB0_6
 LBB0_6:                                 ;   in Loop: Header=BB0_1 Depth=1
 	b	LBB0_7
@@ -64,7 +66,7 @@ LBB0_7:                                 ;   in Loop: Header=BB0_1 Depth=1
 	str	w8, [sp, #4]
 	b	LBB0_1
 LBB0_8:
-	ldr	w8, [sp, #8]                    ; 4-byte Folded Reload
+	ldr	w8, [sp, #8]
 	adds	w8, w8, #1
 	cset	w8, ne
 	tbnz	w8, #0, LBB0_10
@@ -74,7 +76,7 @@ LBB0_9:
 	str	xzr, [sp, #40]
 	b	LBB0_11
 LBB0_10:
-	ldr	w8, [sp, #16]
+	ldr	w8, [sp, #12]
 	ldr	x9, [sp, #16]
 	str	w8, [x9]
 	ldr	w8, [sp, #8]
@@ -87,6 +89,4 @@ LBB0_11:
 	ldr	x0, [sp, #40]
 	add	sp, sp, #48
 	ret
-	.cfi_endproc
-                                        ; -- End function
-.subsections_via_symbols
+	.cfi

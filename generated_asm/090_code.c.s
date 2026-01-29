@@ -18,7 +18,6 @@ _func0:                                 ; @func0
 	stur	x3, [x29, #-32]
 	mov	w8, #-1000
 	stur	w8, [x29, #-36]
-                                        ; kill: def $x8 killed $xzr
 	str	xzr, [sp, #48]
 	str	wzr, [sp, #44]
 	b	LBB0_1
@@ -42,73 +41,4 @@ LBB0_3:                                 ;   Parent Loop BB0_1 Depth=1
                                         ; =>  This Inner Loop Header: Depth=2
 	ldr	x8, [sp, #32]
 	ldrsw	x9, [sp, #24]
-	ldrsb	w8, [x8, x9]
-	subs	w8, w8, #0
-	cset	w8, eq
-	tbnz	w8, #0, LBB0_12
-	b	LBB0_4
-LBB0_4:                                 ;   in Loop: Header=BB0_3 Depth=2
-	ldr	x8, [sp, #32]
-	ldrsw	x9, [sp, #24]
-	add	x8, x8, x9
-	ldrb	w8, [x8]
-	strb	w8, [sp, #23]
-	ldrsb	w8, [sp, #23]
-	subs	w8, w8, #65
-	cset	w8, lt
-	tbnz	w8, #0, LBB0_7
-	b	LBB0_5
-LBB0_5:                                 ;   in Loop: Header=BB0_3 Depth=2
-	ldrsb	w8, [sp, #23]
-	subs	w8, w8, #90
-	cset	w8, gt
-	tbnz	w8, #0, LBB0_7
-	b	LBB0_6
-LBB0_6:                                 ;   in Loop: Header=BB0_3 Depth=2
-	ldr	w8, [sp, #28]
-	add	w8, w8, #1
-	str	w8, [sp, #28]
-	b	LBB0_7
-LBB0_7:                                 ;   in Loop: Header=BB0_3 Depth=2
-	ldrsb	w8, [sp, #23]
-	subs	w8, w8, #97
-	cset	w8, lt
-	tbnz	w8, #0, LBB0_10
-	b	LBB0_8
-LBB0_8:                                 ;   in Loop: Header=BB0_3 Depth=2
-	ldrsb	w8, [sp, #23]
-	subs	w8, w8, #122
-	cset	w8, gt
-	tbnz	w8, #0, LBB0_10
-	b	LBB0_9
-LBB0_9:                                 ;   in Loop: Header=BB0_3 Depth=2
-	ldr	w8, [sp, #28]
-	subs	w8, w8, #1
-	str	w8, [sp, #28]
-	b	LBB0_10
-LBB0_10:                                ;   in Loop: Header=BB0_3 Depth=2
-	b	LBB0_11
-LBB0_11:                                ;   in Loop: Header=BB0_3 Depth=2
-	ldr	w8, [sp, #44]
-	add	w8, w8, #1
-	str	w8, [sp, #44]
-	b	LBB0_3
-LBB0_12:                                ;   in Loop: Header=BB0_1 Depth=1
-	ldr	w8, [sp, #28]
-	ldur	x8, [x29, #-32]
-	ldr	x9, [sp, #48]
-	mov	x10, sp
-	str	x8, [x10]
-	adrp	x3, l_.str@PAGE
-	add	x3, x3, l_.str@PAGEOFF
-	bl	___sprintf_chk
-	ldp	x29, x30, [sp, #96]             ; 16-byte Folded Reload
-	add	sp, sp, #112
-	ret
-	.cfi_endproc
-                                        ; -- End function
-	.section	__TEXT,__cstring,cstring_literals
-l_.str:                                 ; @.str
-	.asciz	"%s.%s"
-
-.subsections_via_symbols
+	ldrsb	w8, [x8, x

@@ -18,7 +18,7 @@ LBB0_1:                                 ; =>This Inner Loop Header: Depth=1
 	ldr	w9, [sp, #28]
 	mov	w10, #2
 	sdiv	w9, w9, w10
-	adds	w8, w8, w9
+	subs	w8, w8, w9
 	cset	w8, ge
 	tbnz	w8, #0, LBB0_6
 	b	LBB0_2
@@ -74,24 +74,4 @@ LBB0_7:
 	ldr	w9, [sp, #28]
 	mov	w10, #2
 	sdiv	w9, w9, w10
-	ldr	w8, [x8, w9, sxtw #2]
-	ldr	w9, [sp, #20]
-	add	w8, w8, w9
-	str	w8, [sp, #20]
-	b	LBB0_8
-LBB0_8:
-	ldr	w8, [sp, #20]
-	ldr	w9, [sp, #24]
-	subs	w8, w8, w9
-	cset	w8, le
-	and	w8, w8, #0x1
-	strb	w8, [sp, #47]
-	b	LBB0_9
-LBB0_9:
-	ldrb	w8, [sp, #47]
-	and	w0, w8, #0x1
-	add	sp, sp, #48
-	ret
-	.cfi_endproc
-                                        ; -- End function
-.subsections_via_symbols
+	ldr	w

@@ -78,16 +78,4 @@ LBB0_9:                                 ;   in Loop: Header=BB0_1 Depth=1
 LBB0_10:                                ;   in Loop: Header=BB0_1 Depth=1
 	ldr	w8, [sp, #8]
 	add	w8, w8, #1
-	str	w8, [sp, #8]
-	b	LBB0_1
-LBB0_11:
-	ldr	x8, [sp, #16]
-	ldrsw	x9, [sp, #12]
-	add	x8, x8, x9
-	strb	wzr, [x8]
-	ldp	x29, x30, [sp, #32]             ; 16-byte Folded Reload
-	add	sp, sp, #48
-	ret
-	.cfi_endproc
-                                        ; -- End function
-.subsections_via_symbols
+	str	w8, [sp, #

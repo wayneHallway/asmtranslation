@@ -24,7 +24,7 @@ LBB0_1:                                 ; =>This Inner Loop Header: Depth=1
 	ldr	w9, [sp, #12]
 	mov	w10, #2
 	sdiv	w9, w9, w10
-	adds	w8, w8, w9
+	subs	w8, w8, w9
 	cset	w8, ge
 	tbnz	w8, #0, LBB0_6
 	b	LBB0_2

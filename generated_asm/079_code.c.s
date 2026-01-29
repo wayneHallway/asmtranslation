@@ -71,42 +71,7 @@ LBB0_9:                                 ;   in Loop: Header=BB0_7 Depth=1
 	ldr	w8, [sp, #8]
 	add	w8, w8, #1
 	str	w8, [sp, #8]
-	b	LBB0_11
+	b	LBB0_10
 LBB0_10:                                ;   in Loop: Header=BB0_7 Depth=1
 	b	LBB0_11
-LBB0_11:                                ;   in Loop: Header=BB0_7 Depth=1
-	ldr	w8, [sp]
-	add	w8, w8, #1
-	str	w8, [sp]
-	b	LBB0_7
-LBB0_12:
-	ldr	w8, [sp, #8]
-	ldr	w9, [sp, #28]
-	subs	w8, w8, w9
-	cset	w8, lt
-	tbnz	w8, #0, LBB0_14
-	b	LBB0_13
-LBB0_13:
-	adrp	x8, l_.str@PAGE
-	add	x8, x8, l_.str@PAGEOFF
-	str	x8, [sp, #40]
-	b	LBB0_15
-LBB0_14:
-	adrp	x8, l_.str.1@PAGE
-	add	x8, x8, l_.str.1@PAGEOFF
-	str	x8, [sp, #40]
-	b	LBB0_15
-LBB0_15:
-	ldr	x0, [sp, #40]
-	add	sp, sp, #48
-	ret
-	.cfi_endproc
-                                        ; -- End function
-	.section	__TEXT,__cstring,cstring_literals
-l_.str:                                 ; @.str
-	.asciz	"YES"
-
-l_.str.1:                               ; @.str.1
-	.asciz	"NO"
-
-.subsections_via_symbols
+LBB0_11:                                ;   in Loop: Header

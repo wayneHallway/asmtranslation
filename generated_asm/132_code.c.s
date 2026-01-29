@@ -73,33 +73,4 @@ LBB0_8:                                 ;   in Loop: Header=BB0_3 Depth=1
 	str	w8, [sp, #4]
 	b	LBB0_9
 LBB0_9:                                 ;   in Loop: Header=BB0_3 Depth=1
-	b	LBB0_10
-LBB0_10:                                ;   in Loop: Header=BB0_3 Depth=1
-	b	LBB0_11
-LBB0_11:                                ;   in Loop: Header=BB0_3 Depth=1
-	ldr	w8, [sp]
-	add	w8, w8, #1
-	str	w8, [sp]
-	b	LBB0_3
-LBB0_12:
-	ldr	w8, [sp, #4]
-	mov	w9, #2147483647
-	subs	w8, w8, w9
-	cset	w8, ne
-	tbnz	w8, #0, LBB0_14
-	b	LBB0_13
-LBB0_13:
-	mov	w8, #-1
-	str	w8, [sp, #12]
-	b	LBB0_15
-LBB0_14:
-	ldr	w8, [sp, #4]
-	str	w8, [sp, #12]
-	b	LBB0_15
-LBB0_15:
-	ldr	w0, [sp, #12]
-	add	sp, sp, #32
-	ret
-	.cfi_endproc
-                                        ; -- End function
-.subsections_via_symbols
+	b	LBB0_

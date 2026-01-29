@@ -29,8 +29,11 @@ LBB0_2:                                 ;   in Loop: Header=BB0_1 Depth=1
 	fmul	s0, s0, s1
 	ldr	x8, [sp, #8]
 	ldr	w9, [sp, #4]
-	subs	w9, w9, #1
-	str	s0, [x8, w9, sxtw #2]
+	subs	w10, w9, #1
+                                        ; implicit-def: $x9
+	mov	x9, x10
+	sxtw	x9, w9
+	str	s0, [x8, x9, lsl #2]
 	b	LBB0_3
 LBB0_3:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldr	w8, [sp, #4]

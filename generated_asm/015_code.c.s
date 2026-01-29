@@ -80,19 +80,4 @@ LBB0_9:
 LBB0_10:                                ;   in Loop: Header=BB0_3 Depth=1
 	b	LBB0_11
 LBB0_11:                                ;   in Loop: Header=BB0_3 Depth=1
-	ldr	w8, [sp, #8]
-	add	w8, w8, #1
-	str	w8, [sp, #8]
-	b	LBB0_3
-LBB0_12:
-	mov	w8, #1
-	strb	w8, [sp, #31]
-	b	LBB0_13
-LBB0_13:
-	ldrb	w8, [sp, #31]
-	and	w0, w8, #0x1
-	add	sp, sp, #32
-	ret
-	.cfi_endproc
-                                        ; -- End function
-.subsections_via_symbols
+	ldr	w8, [sp, #8

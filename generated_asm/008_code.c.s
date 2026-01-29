@@ -17,14 +17,13 @@ _func0:                                 ; @func0
 	add	w9, w8, #1
                                         ; implicit-def: $x8
 	mov	x8, x9
-	sxtw	x9, w8
-	mov	x8, #4
-	mul	x0, x8, x9
+	sxtw	x8, w8
+	lsl	x0, x8, #2
 	bl	_malloc
 	str	x0, [sp, #8]
-	ldr	x9, [sp, #8]
-	mov	w8, #1
-	str	w8, [x9]
+	ldr	x8, [sp, #8]
+	mov	w9, #1
+	str	w9, [x8]
 	ldur	w8, [x29, #-12]
 	subs	w8, w8, #0
 	cset	w8, ne
@@ -77,29 +76,4 @@ LBB0_6:                                 ;   in Loop: Header=BB0_3 Depth=1
 	subs	w10, w10, #2
 	ldr	w9, [x9, w10, sxtw #2]
 	add	w8, w8, w9
-	add	w8, w8, #1
-	ldr	w9, [sp, #4]
-	add	w8, w8, w9, lsl #2
-	ldr	x9, [sp, #8]
-	ldrsw	x10, [sp, #4]
-	str	w8, [x9, x10, lsl #2]
-	b	LBB0_7
-LBB0_7:                                 ;   in Loop: Header=BB0_3 Depth=1
-	b	LBB0_8
-LBB0_8:                                 ;   in Loop: Header=BB0_3 Depth=1
-	ldr	w8, [sp, #4]
-	add	w8, w8, #1
-	str	w8, [sp, #4]
-	b	LBB0_3
-LBB0_9:
-	ldr	x8, [sp, #8]
-	stur	x8, [x29, #-8]
-	b	LBB0_10
-LBB0_10:
-	ldur	x0, [x29, #-8]
-	ldp	x29, x30, [sp, #32]             ; 16-byte Folded Reload
-	add	sp, sp, #48
-	ret
-	.cfi_endproc
-                                        ; -- End function
-.subsections_via_symbols
+	add	w8, w8

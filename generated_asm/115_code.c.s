@@ -17,19 +17,19 @@ _func0:                                 ; @func0
 	ldur	w0, [x29, #-4]
 	bl	_abs
 	mov	w9, #10
-	str	w9, [sp, #12]                   ; 4-byte Folded Spill
+	str	w9, [sp, #16]                   ; 4-byte Folded Spill
 	sdiv	w8, w0, w9
 	mul	w8, w8, w9
 	subs	w8, w0, w8
-	str	w8, [sp, #20]                   ; 4-byte Folded Spill
+	str	w8, [sp, #12]                   ; 4-byte Folded Spill
 	ldur	w0, [x29, #-8]
 	bl	_abs
-	ldr	w9, [sp, #12]                   ; 4-byte Folded Reload
-	ldr	w8, [sp, #20]                   ; 4-byte Folded Reload
-	sdiv	w10, w0, w9
-	mul	w10, w10, w9
-	subs	w10, w0, w10
-	mul	w0, w8, w10
+	ldr	w10, [sp, #16]                  ; 4-byte Folded Reload
+	ldr	w8, [sp, #12]                   ; 4-byte Folded Reload
+	sdiv	w9, w0, w10
+	mul	w9, w9, w10
+	subs	w9, w0, w9
+	mul	w0, w8, w9
 	ldp	x29, x30, [sp, #32]             ; 16-byte Folded Reload
 	add	sp, sp, #48
 	ret

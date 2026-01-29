@@ -44,8 +44,8 @@ LBB0_5:
 	str	w8, [sp, #12]
 	b	LBB0_8
 LBB0_6:                                 ;   in Loop: Header=BB0_1 Depth=1
-	ldr	w8, [sp, #16]
-	ldr	w9, [sp, #20]
+	ldr	w9, [sp, #16]
+	ldr	w8, [sp, #20]
 	mul	w8, w8, w9
 	str	w8, [sp, #16]
 	ldr	w8, [sp, #12]

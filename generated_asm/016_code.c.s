@@ -1,11 +1,6 @@
 .section	__TEXT,__text,regular,pure_instructions
 	.build_version macos, 13, 0	sdk_version 13, 3
-	.section	__TEXT,__literal8,8byte_literals
-	.p2align	3                               ; -- Begin function func0
-lCPI0_0:
-	.quad	0x3fe0000000000000              ; double 0.5
-	.section	__TEXT,__text,regular,pure_instructions
-	.globl	_func0
+	.globl	_func0                         ; -- Begin function func0
 	.p2align	2
 _func0:                                 ; @func0
 	.cfi_startproc
@@ -18,8 +13,7 @@ _func0:                                 ; @func0
 	ldr	s1, [sp, #8]
 	fmul	s0, s0, s1
 	fcvt	d0, s0
-	adrp	x8, lCPI0_0@PAGE
-	ldr	d1, [x8, lCPI0_0@PAGEOFF]
+	fmov	d1, #0.50000000
 	fmul	d0, d0, d1
 	fcvt	s0, d0
 	add	sp, sp, #16
